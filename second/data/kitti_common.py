@@ -93,7 +93,7 @@ def get_kitti_info_path(idx,
     else:
         file_path = pathlib.Path('testing') / info_type / img_idx_str
     if exist_check and not (prefix / file_path).exists():
-        raise ValueError("file not exist: {}".format(file_path))
+        raise ValueError("file not exist: {}".format(prefix / file_path))
     if relative_path:
         return str(file_path)
     else:
@@ -101,7 +101,7 @@ def get_kitti_info_path(idx,
 
 
 def get_image_path(idx, prefix, training=True, relative_path=True, exist_check=True):
-    return get_kitti_info_path(idx, prefix, 'image_2', '.png', training,
+    return get_kitti_info_path(idx, prefix, 'image_2', '_01.png', training,
                                relative_path, exist_check)
 
 def get_label_path(idx, prefix, training=True, relative_path=True, exist_check=True):

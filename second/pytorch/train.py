@@ -8,6 +8,7 @@ from functools import partial
 import fire
 import numpy as np
 import torch
+from tqdm import tqdm
 from google.protobuf import text_format
 from tensorboardX import SummaryWriter
 
@@ -230,7 +231,7 @@ def train(config_path,
                 steps = train_cfg.steps % train_cfg.steps_per_eval
             else:
                 steps = train_cfg.steps_per_eval
-            for step in range(steps):
+            for step in tqdm(range(steps)):
                 lr_scheduler.step()
                 try:
                     example = next(data_iter)
@@ -329,6 +330,7 @@ def train(config_path,
                     log_str = ', '.join(metrics_str_list)
                     print(log_str, file=logf)
                     print(log_str)
+                    print()
                 ckpt_elasped_time = time.time() - ckpt_start_time
                 if ckpt_elasped_time > train_cfg.save_checkpoints_secs:
                     torchplus.train.save_models(model_dir, [net, optimizer],
