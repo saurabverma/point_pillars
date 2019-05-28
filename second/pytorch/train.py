@@ -624,6 +624,7 @@ def evaluate(config_path,
     t = time.time()
     dt_annos = []
     global_set = None
+    print()
     print("Generate output labels...")
     bar = ProgressBar()
     bar.start(len(eval_dataset) // input_cfg.batch_size + 1)

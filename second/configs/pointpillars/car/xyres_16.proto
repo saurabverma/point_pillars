@@ -99,11 +99,11 @@ train_input_reader: {
   record_file_path: "/root/point_pillars/data/kitti_second/kitti_train.tfrecord"
   class_names: ["Car"]
   max_num_epochs : 160
-  batch_size: 2
-  prefetch_size : 25
+  batch_size: 4
+  prefetch_size : 64
   max_number_of_voxels: 12000
   shuffle_points: true
-  num_workers: 2
+  num_workers: 16
   groundtruth_localization_noise_std: [0.25, 0.25, 0.25]
   groundtruth_rotation_uniform_noise: [-0.15707963267, 0.15707963267]
   global_rotation_uniform_noise: [-0.78539816, 0.78539816]
@@ -150,7 +150,7 @@ train_config: {
       learning_rate: {
         exponential_decay_learning_rate: {
           initial_learning_rate: 0.0002
-          decay_steps: 27840 # 1856 steps per epoch * 15 epochs
+          decay_steps: 14027 # 936 steps per epoch (file size 7481/2 / batch size 4) * 15 epochs
           decay_factor: 0.8
           staircase: true
         }
@@ -160,10 +160,10 @@ train_config: {
     use_moving_average: false
 
   }
-  inter_op_parallelism_threads: 4
-  intra_op_parallelism_threads: 4
-  steps: 296960 # 1856 steps per epoch * 160 epochs
-  steps_per_eval: 9280 # 1856 steps per epoch * 5 epochs
+  inter_op_parallelism_threads: 16
+  intra_op_parallelism_threads: 16
+  steps: 149620 # 936 steps per epoch (file size 7481/2 / batch size 4) * 160 epochs
+  steps_per_eval: 4676 # 936 steps per epoch (file size 7481/2 / batch size 4) * 5 epochs
   save_checkpoints_secs : 1800 # half hour
   save_summary_steps : 10
   enable_mixed_precision: false
@@ -174,12 +174,12 @@ train_config: {
 eval_input_reader: {
   record_file_path: "/root/point_pillars/data/kitti_second/kitti_val.tfrecord"
   class_names: ["Car"]
-  batch_size: 2
+  batch_size: 4
   max_num_epochs : 160
-  prefetch_size : 25
+  prefetch_size : 64
   max_number_of_voxels: 12000
   shuffle_points: false
-  num_workers: 3
+  num_workers: 16
   anchor_area_threshold: 1
   remove_environment: false
   kitti_info_path: "/root/point_pillars/data/kitti_second/kitti_infos_val.pkl"
