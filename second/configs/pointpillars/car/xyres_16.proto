@@ -1,10 +1,13 @@
 model: {
   second: {
+
     voxel_generator {
       point_cloud_range : [0, -39.68, -3, 69.12, 39.68, 1]
+      # Resolution set to 16 x 16 cm^2
       voxel_size : [0.16, 0.16, 4]
       max_number_of_points_per_voxel : 100
     }
+    
     num_class: 1
     voxel_feature_extractor: {
       module_class_name: "PillarFeatureNet"
@@ -41,19 +44,21 @@ model: {
       classification_weight: 1.0
       localization_weight: 2.0
     }
+    
     # Outputs
     use_sigmoid_score: true
     encode_background_as_zeros: true
     encode_rad_error_by_sin: true
-
+    
     use_direction_classifier: true
     direction_loss_weight: 0.2
     use_aux_classifier: false
+    
     # Loss
     pos_class_weight: 1.0
     neg_class_weight: 1.0
-
     loss_norm_type: NormByNumPositives
+
     # Postprocess
     post_center_limit_range: [0, -39.68, -5, 69.12, 39.68, 5]
     use_rotate_nms: false

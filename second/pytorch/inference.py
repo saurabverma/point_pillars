@@ -9,7 +9,7 @@ from second.core.inference import InferenceContext
 from second.builder import target_assigner_builder, voxel_builder
 from second.pytorch.builder import box_coder_builder, second_builder
 from second.pytorch.models.voxelnet import VoxelNet
-from second.pytorch.train import predict_kitti_to_anno, example_convert_to_torch
+from second.pytorch.train import predict_kitti_to_anno, _example_convert_to_torch
 
 
 class TorchInferenceContext(InferenceContext):
@@ -68,7 +68,7 @@ class TorchInferenceContext(InferenceContext):
         train_cfg = self.config.train_config
         input_cfg = self.config.eval_input_reader
         model_cfg = self.config.model.second
-        example_torch = example_convert_to_torch(example)
+        example_torch = _example_convert_to_torch(example)
         if train_cfg.enable_mixed_precision:
             float_dtype = torch.float16
         else:

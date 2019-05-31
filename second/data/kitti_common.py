@@ -204,7 +204,7 @@ def get_kitti_image_info(path,
             image_info['calib/Tr_imu_to_velo'] = Tr_imu_to_velo
         if annotations is not None:
             image_info['annos'] = annotations
-            add_difficulty_to_annos(image_info)
+            add_difficulty_to_annos(image_info) # Add kitti specific difficult annotation to the info
         return image_info
 
     with futures.ThreadPoolExecutor(num_worker) as executor:
