@@ -62,7 +62,7 @@ def _flat_nested_json_dict_to_py_dict(json_dict, sep=".") -> dict:
 	return flatted
 
 
-def _example_convert_to_torch(example, dtype=torch.float32,
+def example_convert_to_torch(example, dtype=torch.float32,
 							 device=None) -> dict:
 	# Convert a python dict to a torch dict
 	device = device or torch.device("cuda:0")
@@ -243,7 +243,7 @@ def train(config_path,
 						net.clear_metrics()
 					data_iter = iter(dataloader)
 					example = next(data_iter)
-				example_torch = _example_convert_to_torch(example, float_dtype)
+				example_torch = example_convert_to_torch(example, float_dtype)
 
 				batch_size = example["anchors"].shape[0]
 
@@ -361,9 +361,9 @@ def train(config_path,
 			prog_bar = ProgressBar()
 			prog_bar.start(len(eval_dataset) // eval_input_cfg.batch_size + 1)
 			for example in iter(eval_dataloader):
-				example = _example_convert_to_torch(example, float_dtype)
+				example = example_convert_to_torch(example, float_dtype)
 				if pickle_result:
-					dt_annos += predict_kitti_to_anno(
+					dt_annos += _predict_kitti_to_anno(
 						net, example, class_names, center_limit_range,
 						model_cfg.lidar_input)
 				else:
@@ -434,9 +434,9 @@ def _predict_kitti_to_file(net,
 	# batch_imgidx = example['image_idx']
 
 	# NOTE: Predict network output
-	start_time = time.time()
+	# start_time = time.time()
 	predictions_dicts = net(example)
-	print('Network predict time: {}'.format(time.time()-start_time))
+	# print('Network predict time: {}'.format(time.time()-start_time))
 
 	for i, preds_dict in enumerate(predictions_dicts):
 		image_shape = batch_image_shape[i]
@@ -487,7 +487,7 @@ def _predict_kitti_to_file(net,
 			f.write(result_str)
 
 
-def predict_kitti_to_anno(net,
+def _predict_kitti_to_anno(net,
 						  example,
 						  class_names,
 						  center_limit_range=None,
@@ -499,9 +499,9 @@ def predict_kitti_to_anno(net,
 	# batch_imgidx = example['image_idx']
 
 	# NOTE: Predict network output
-	start_time = time.time()
+	# start_time = time.time()
 	predictions_dicts = net(example)
-	print('Network predict time: {}'.format(time.time()-start_time))
+	# print('Network predict time: {}'.format(time.time()-start_time))
 
 	annos = []
 	for i, preds_dict in enumerate(predictions_dicts):
@@ -558,10 +558,11 @@ def predict_kitti_to_anno(net,
 			else:
 				annos.append(kitti.empty_result_anno())
 		else:
-			annos.append(kitti.empty_result_anno())
+			annos.append(kitti.empty_result_anno()) # Simply an empty set of annotations
+
 		num_example = annos[-1]["name"].shape[0]
-		annos[-1]["image_idx"] = np.array(
-			[img_idx] * num_example, dtype=np.int64)
+		annos[-1]["image_idx"] = np.array([img_idx] * num_example, dtype=np.int64)
+
 	return annos
 
 
@@ -657,9 +658,9 @@ def evaluate(config_path,
 
 	# Predict each sample info and reformat data as needed
 	for example in iter(eval_dataloader):
-		example = _example_convert_to_torch(example, float_dtype)
+		example = example_convert_to_torch(example, float_dtype)
 		if pickle_result:
-			dt_annos += predict_kitti_to_anno(
+			dt_annos += _predict_kitti_to_anno(
 				net, example, class_names, center_limit_range,
 				model_cfg.lidar_input, global_set)
 		else:

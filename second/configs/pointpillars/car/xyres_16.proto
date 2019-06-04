@@ -179,12 +179,12 @@ train_config: {
 eval_input_reader: {
   record_file_path: "/root/point_pillars/data/kitti_second/kitti_val.tfrecord"
   class_names: ["Car"]
-  batch_size: 4
+  batch_size: 1 # 3
   max_num_epochs : 160
   prefetch_size : 64
   max_number_of_voxels: 12000
   shuffle_points: false
-  num_workers: 16
+  num_workers: 32
   anchor_area_threshold: 1
   remove_environment: false
   kitti_info_path: "/root/point_pillars/data/kitti_second/kitti_infos_val.pkl"

@@ -113,12 +113,14 @@ python create_data.py create_kitti_info_file --data_path=$KITTI_DATASET_ROOT
 #### 3. Create reduced point cloud:
 
 ```bash
+cd ~/point_pillars/second.pytorch/second
 python create_data.py create_reduced_point_cloud --data_path=$KITTI_DATASET_ROOT
 ```
 
 #### 4. Create groundtruth-database infos:
 
 ```bash
+cd ~/point_pillars/second.pytorch/second
 python create_data.py create_groundtruth_database --data_path=$KITTI_DATASET_ROOT
 ```
 
@@ -148,6 +150,7 @@ eval_input_reader: {
 ### Train
 
 ```bash
+cd ~/point_pillars/second.pytorch/second
 python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
 ```
 
@@ -162,8 +165,19 @@ python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_1
 
 
 ```bash
+cd ~/point_pillars/second.pytorch/second
 python ./pytorch/train.py evaluate --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
 ```
 
 * Detection result will saved in model_dir/eval_results/step_xxx.
 * By default, results are stored as a result.pkl file. To save as official KITTI label format use --pickle_result=False.
+
+
+
+### Predict
+
+
+```bash
+cd ~/point_pillars/second.pytorch
+python ./predict.py predict --config_path=./second/configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
+```
