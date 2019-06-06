@@ -100,6 +100,7 @@ def build(input_reader_config,
         remove_environment=cfg.remove_environment,
         use_group_id=cfg.use_group_id,
         out_size_factor=out_size_factor)
+
     dataset = KittiDataset(
         info_path=cfg.kitti_info_path,
         root_path=cfg.kitti_root_path,

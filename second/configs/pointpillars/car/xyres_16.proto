@@ -2,6 +2,7 @@ model: {
   second: {
 
     voxel_generator {
+      # Range in which point cloud data is to be limited [x_min, y_min, z_min, x_max, y_max, z_max]
       point_cloud_range : [0, -39.68, -3, 69.12, 39.68, 1]
       # Resolution set to 16 x 16 cm^2
       voxel_size : [0.16, 0.16, 4]
@@ -60,6 +61,7 @@ model: {
     loss_norm_type: NormByNumPositives
 
     # Postprocess
+    # Range in which point cloud data is to be limited [x_min, y_min, z_min, x_max, y_max, z_max]
     post_center_limit_range: [0, -39.68, -5, 69.12, 39.68, 5]
     use_rotate_nms: false
     use_multi_class_nms: false

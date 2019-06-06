@@ -75,7 +75,7 @@ def process_output(predictions_dicts,
                                 box3d_camera, box3d_lidar, bbox, scores,
                                 label_preds):
 				if not lidar_input: # If camera data is available along with lidar input, then
-					if bbox_2d[0] > image_shape[1] or bbox_2d[1] > image_shape[0]: # If bbox_2d length/breadth > image size, then
+					if bbox_2d[0] > image_shape[1] or bbox_2d[1] > image_shape[0]: # If bbox_2d length/breadth > camera image size, then
 						continue # Stop further processing of this specific 'for' loop
 					if bbox_2d[2] < 0 or bbox_2d[3] < 0: # If bbox_2d length/breadth < 0, then
 						continue # Stop further processing of this specific 'for' loop
@@ -115,7 +115,7 @@ def process_output(predictions_dicts,
 				anno["score"].append(score)
 
 				num_example += 1
-				# print(num_example) # DEBUG:
+				print(num_example) # DEBUG:
 			if num_example != 0:
 				anno = {n: np.stack(v) for n, v in anno.items()}
 				annos.append(anno)
@@ -231,16 +231,17 @@ def predict(config_path,
 	# NETWORK USAGE #
 	#################
 	# Predict a set of 'num_workers'  samples, get info and reformat data as needed
+	temp_count = 0
 	for example in iter(eval_dataloader):
-		pprint.pprint(example, width=1)
-		for key, value in example.items():
-			print(key)
-			print(np.shape(value))
-		example = example_convert_to_torch(example, float_dtype)
 		# pprint.pprint(example, width=1)
 		# for key, value in example.items():
 		# 	print(key)
 		# 	print(np.shape(value))
+		example = example_convert_to_torch(example, float_dtype)
+		pprint.pprint(example, width=1)
+		for key, value in example.items():
+			print(key)
+			print(np.shape(value))
 		# # # # if pickle_result:
 
 		# NOTE: Predict network output
@@ -248,10 +249,13 @@ def predict(config_path,
 		predictions_dicts = net(example)
 		# print('Network predict time: {}'.format(time.time()-start_time))
 		# pprint.pprint(predictions_dicts[0])
+		# for key, value in predictions_dicts[0].items():
+		# 	print(key)
+		# 	print(np.shape(value))
 
-		dt_annos += process_output(
-			predictions_dicts, example['image_shape'], class_names, center_limit_range,
-			model_cfg.lidar_input, global_set)
+		# dt_annos += process_output(
+		# 	predictions_dicts, example['image_shape'], class_names, center_limit_range,
+		# 	model_cfg.lidar_input, global_set)
 		# pprint.pprint(dt_annos[0], width=1)
 		# for key, value in dt_annos[0].items():
 		# 	print(key)
@@ -259,7 +263,9 @@ def predict(config_path,
 		# # # # else:
 		# # # # 	predict_kitti_to_file(net, example, result_path_step, class_names,
 		# # # # 						   center_limit_range, model_cfg.lidar_input)
-		break
+		temp_count += 1
+		if temp_count > 1:
+			break
 		bar.print_bar() # Update progress
 
 	# sec_per_example = len(eval_dataset) / (time.time() - t)

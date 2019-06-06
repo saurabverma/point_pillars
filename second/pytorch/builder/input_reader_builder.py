@@ -68,5 +68,5 @@ def build(input_reader_config,
                          'input_reader_pb2.InputReader.')
     dataset = dataset_builder.build(input_reader_config, model_config,
                                     training, voxel_generator, target_assigner)
-    dataset = DatasetWrapper(dataset)
+    dataset = DatasetWrapper(dataset) # Convert from python class to pyTorch class
     return dataset
