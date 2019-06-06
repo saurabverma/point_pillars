@@ -102,7 +102,7 @@ ENTRYPOINT ["fish"]
 # # NOTE: The following folders are assumed to be already setup from the host PC
 # /root/point_pillars/data --> holds the KIITI or other data (see README.md for details)
 # /root/point_pillars/model --> holds the trained model checkpoints
-# /root/point_pillars/second.torch --> actual pointpillars code
+# /root/point_pillars/src/second.torch --> actual pointpillars code
 
 # # Build image using (inside the directory with Dockerfile):
 # docker build --tag="point_pillars:Dockerfile" .

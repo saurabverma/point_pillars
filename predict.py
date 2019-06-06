@@ -18,6 +18,10 @@ import shutil
 import time
 from functools import partial
 
+# import rospy
+# from visualization_msgs.msg import MarkerArray
+# from sensor_msgs.msg import PointCloud2
+
 import pprint
 import fire
 import numpy as np
@@ -41,7 +45,7 @@ from second.pytorch.train import example_convert_to_torch
 
 
 
-def process_output(predictions_dicts,
+def _process_output(predictions_dicts,
                    batch_image_shape,
 				   class_names,
 				   center_limit_range=None,
@@ -138,7 +142,9 @@ def predict(config_path,
 			predict_test=False,
 			ckpt_path=None,
 			ref_detfile=None,
-			pickle_result=True):
+			pickle_result=True,
+			pub_bb=None,
+            pub_lidar=None):
 	''' Setup network and provide useful output '''
 
 	####################
@@ -247,13 +253,25 @@ def predict(config_path,
 		# NOTE: Predict network output
 		# start_time = time.time()
 		predictions_dicts = net(example)
+
+		# # Publish original data
+		# if pub_lidar:
+		# 	data=PointCloud2()
+		# 	# FIXME: Not sure how to obtain original pointcloud because we are currently using 'example' given by dataloader()
+		# 	pub_lidar.publish(data)
+
+		# # Publish network output
+		# if pub_bb:
+		# 	data = MarkerArray()
+		# 	pub_bb.publish(data)
+
 		# print('Network predict time: {}'.format(time.time()-start_time))
 		# pprint.pprint(predictions_dicts[0])
 		# for key, value in predictions_dicts[0].items():
 		# 	print(key)
 		# 	print(np.shape(value))
 
-		# dt_annos += process_output(
+		# dt_annos += _process_output(
 		# 	predictions_dicts, example['image_shape'], class_names, center_limit_range,
 		# 	model_cfg.lidar_input, global_set)
 		# pprint.pprint(dt_annos[0], width=1)
@@ -289,6 +307,21 @@ def predict(config_path,
 	# 	if pickle_result:
 	# 		with open(result_path_step / "result.pkl", 'wb') as f:
 	# 			pickle.dump(dt_annos, f)
+
+
+# def ros_predict(config_path,
+#                 model_dir,
+#                 result_path=None,
+#                 predict_test=False,
+#                 ckpt_path=None,
+#                 ref_detfile=None,
+#                 pickle_result=True):
+
+# 	rospy.init_node('PointPillars')
+# 	pub_bb = rospy.Publisher('lidar_segments', MarkerArray, queue_size=1)
+# 	pub_lidar = rospy.Publisher('lidar_segments', PointCloud2, queue_size=1)
+# 	predict(config_path, model_dir, result_path, predict_test,
+# 	        ckpt_path, ref_detfile, pickle_result, pub_bb, pub_lidar)
 
 
 if __name__ == '__main__':
