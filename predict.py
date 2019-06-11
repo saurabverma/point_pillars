@@ -18,9 +18,9 @@ import shutil
 import time
 from functools import partial
 
-# import rospy
-# from visualization_msgs.msg import MarkerArray
-# from sensor_msgs.msg import PointCloud2
+import rospy
+from visualization_msgs.msg import MarkerArray
+from sensor_msgs.msg import PointCloud2
 
 import pprint
 import fire
@@ -260,10 +260,11 @@ def predict(config_path,
 		# 	# FIXME: Not sure how to obtain original pointcloud because we are currently using 'example' given by dataloader()
 		# 	pub_lidar.publish(data)
 
-		# # Publish network output
-		# if pub_bb:
-		# 	data = MarkerArray()
-		# 	pub_bb.publish(data)
+		# Publish network output
+		if pub_bb:
+			data = MarkerArray()
+			
+			pub_bb.publish(data)
 
 		# print('Network predict time: {}'.format(time.time()-start_time))
 		# pprint.pprint(predictions_dicts[0])
@@ -309,19 +310,22 @@ def predict(config_path,
 	# 			pickle.dump(dt_annos, f)
 
 
-# def ros_predict(config_path,
-#                 model_dir,
-#                 result_path=None,
-#                 predict_test=False,
-#                 ckpt_path=None,
-#                 ref_detfile=None,
-#                 pickle_result=True):
 
-# 	rospy.init_node('PointPillars')
-# 	pub_bb = rospy.Publisher('lidar_segments', MarkerArray, queue_size=1)
-# 	pub_lidar = rospy.Publisher('lidar_segments', PointCloud2, queue_size=1)
-# 	predict(config_path, model_dir, result_path, predict_test,
-# 	        ckpt_path, ref_detfile, pickle_result, pub_bb, pub_lidar)
+def ros_predict(config_path,
+                model_dir,
+                result_path=None,
+                predict_test=False,
+                ckpt_path=None,
+                ref_detfile=None,
+                pickle_result=True):
+
+	rospy.init_node('PointPillars')
+	pub_bb = rospy.Publisher('lidar_segments', MarkerArray, queue_size=1)
+	pub_lidar = rospy.Publisher('lidar_segments', PointCloud2, queue_size=1)
+
+	predict(config_path, model_dir, result_path, predict_test,
+	        ckpt_path, ref_detfile, pickle_result, pub_bb, pub_lidar)
+
 
 
 if __name__ == '__main__':
