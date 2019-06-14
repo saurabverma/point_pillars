@@ -18,9 +18,9 @@ import shutil
 import time
 from functools import partial
 
-import rospy
-from visualization_msgs.msg import MarkerArray
-from sensor_msgs.msg import PointCloud2
+# import rospy
+# from visualization_msgs.msg import MarkerArray
+# from sensor_msgs.msg import PointCloud2
 
 import pprint
 import fire
@@ -85,7 +85,7 @@ def _process_output(predictions_dicts,
 						continue # Stop further processing of this specific 'for' loop
 
 				# # DEBUG:
-				# print(f'image: {image_shape[::-1]}')  # FIXME: What is image_shape?
+				# print(f'image: {image_shape[::-1]}')  # NOTE: image_shape is shape of camera images
 				# print(f'bbox:  {bbox_2d}')
 				print(f'bbox_lidar: {bbox_lidar}')
 				print(f'score:      {score}')
@@ -164,6 +164,9 @@ def predict(config_path,
 		proto_str = f.read()
 		text_format.Merge(proto_str, config)
 
+	# TODO: use whole pointcloud data instead of reduced pointcloud
+	# TODO: store data in respective pcd and bounding box (csv) files
+	# TODO: create a cpp file to read and show (n number of) pcd files with respective bounding boxes
 	input_cfg = config.eval_input_reader # Read the config file data into useful structures
 	model_cfg = config.model.second # Read the config file data into useful structures
 	train_cfg = config.train_config # Read the config file data into useful structures
@@ -244,26 +247,27 @@ def predict(config_path,
 		# 	print(key)
 		# 	print(np.shape(value))
 		example = example_convert_to_torch(example, float_dtype)
-		pprint.pprint(example, width=1)
-		for key, value in example.items():
-			print(key)
-			print(np.shape(value))
+		print(example['image_idx'][0])
+		# pprint.pprint(example, width=1)
+		# for key, value in example.items():
+		# 	print(key)
+		# 	print(np.shape(value))
 		# # # # if pickle_result:
 
 		# NOTE: Predict network output
 		# start_time = time.time()
 		predictions_dicts = net(example)
 
-		# # Publish original data
-		# if pub_lidar:
-		# 	data=PointCloud2()
-		# 	# FIXME: Not sure how to obtain original pointcloud because we are currently using 'example' given by dataloader()
-		# 	pub_lidar.publish(data)
+		# Publish original data
+		if pub_lidar:
+			data=PointCloud2()
+			# TODO: Extract pointclound info from 'example' (use original kitti data file if needed) > publish
+			pub_lidar.publish(data)
 
 		# Publish network output
 		if pub_bb:
 			data = MarkerArray()
-			
+			# TODO: Create a wireframe 3D bounding box and, if possible, a transluscent 3D cuboid as well > publish
 			pub_bb.publish(data)
 
 		# print('Network predict time: {}'.format(time.time()-start_time))
@@ -283,9 +287,9 @@ def predict(config_path,
 		# # # # 	predict_kitti_to_file(net, example, result_path_step, class_names,
 		# # # # 						   center_limit_range, model_cfg.lidar_input)
 		temp_count += 1
-		if temp_count > 1:
+		if temp_count > 5:
 			break
-		bar.print_bar() # Update progress
+		# bar.print_bar() # Update progress
 
 	# sec_per_example = len(eval_dataset) / (time.time() - t)
 	# print(f'generate label finished({sec_per_example:.2f}/s). start eval:')
@@ -311,20 +315,20 @@ def predict(config_path,
 
 
 
-def ros_predict(config_path,
-                model_dir,
-                result_path=None,
-                predict_test=False,
-                ckpt_path=None,
-                ref_detfile=None,
-                pickle_result=True):
+# def ros_predict(config_path,
+#                 model_dir,
+#                 result_path=None,
+#                 predict_test=False,
+#                 ckpt_path=None,
+#                 ref_detfile=None,
+#                 pickle_result=True):
 
-	rospy.init_node('PointPillars')
-	pub_bb = rospy.Publisher('lidar_segments', MarkerArray, queue_size=1)
-	pub_lidar = rospy.Publisher('lidar_segments', PointCloud2, queue_size=1)
+# 	rospy.init_node('PointPillars')
+# 	pub_bb = rospy.Publisher('lidar_segments', MarkerArray, queue_size=1)
+# 	pub_lidar = rospy.Publisher('lidar_segments', PointCloud2, queue_size=1)
 
-	predict(config_path, model_dir, result_path, predict_test,
-	        ckpt_path, ref_detfile, pickle_result, pub_bb, pub_lidar)
+# 	predict(config_path, model_dir, result_path, predict_test,
+# 	        ckpt_path, ref_detfile, pickle_result, pub_bb, pub_lidar)
 
 
 

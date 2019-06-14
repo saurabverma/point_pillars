@@ -21,9 +21,11 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
+        apt-utils \
         wget \
         git \
         vim \
+        nano \
         less \
         fish \
         libsparsehash-dev \
@@ -81,38 +83,44 @@ RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.
     tar xzvf boost_1_68_0.tar.gz && \
     cp -r ./boost_1_68_0/boost /usr/include && \
     rm -rf ./boost_1_68_0 && \
-    rm -rf ./boost_1_68_0.tar.gz
-
-# RUN git clone https://github.com/saurabverma/second.pytorch.git --depth 1
-RUN git clone https://github.com/traveller59/SparseConvNet.git --depth 1 && \
+    rm -rf ./boost_1_68_0.tar.gz && \
+    git clone https://github.com/traveller59/SparseConvNet.git --depth 1 && \
     cd ./SparseConvNet && \
     python setup.py install && \
     cd .. && \
     rm -rf SparseConvNet
 
-ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
-ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
-ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
+ENV KITTI_DATASET_ROOT=/root/point_pillars/data/kitti_second \
+    MODEL_ROOT=/root/point_pillars/model \
+    PYTHONPATH=/root/point_pillars/src/point_pillars
 
-# ENV PYTHONPATH=/root/point_pillars/second.pytorch
-# WORKDIR /root/point_pillars/second.pytorch/second
+# # git repo to be set from outside docker such that user can easily manipulate
+# WORKDIR /root/point_pillars/src/
+# RUN git clone https://github.com/saurabverma/point_pillars.git --depth 1
+# WORKDIR /root/point_pillars/src/point_pillars/second
+
+# # NUMPRO is deprecated and thus, not needed
+# ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
+# ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
+# ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
+# ENV PYTHONPATH=/root/point_pillars/src/point_pillars
 
 ENTRYPOINT ["fish"]
 
 # # NOTE: The following folders are assumed to be already setup from the host PC
 # /root/point_pillars/data --> holds the KIITI or other data (see README.md for details)
 # /root/point_pillars/model --> holds the trained model checkpoints
-# /root/point_pillars/src/second.torch --> actual pointpillars code
+# /root/point_pillars/src/point_pillars --> actual pointpillars code
 
 # # Build image using (inside the directory with Dockerfile):
 # docker build --tag="point_pillars:Dockerfile" .
 
 # # Create container using (to be auto-removed on stop):
 # # NOTE: See 'note' file for specific details
-# docker run -d -it --rm --runtime=nvidia -v /home/docker_mount/<specific_folder>/point_pillars:/root/point_pillars --net=host --name pointpillars_test point_pillars:Dockerfile
+# docker run -d -it --rm --runtime=nvidia -v /home/docker_mount/<parent_folder_to_point_pillars>:/root/point_pillars --net=host --name pointpillars_test point_pillars:Dockerfile
 
 # # Run container using (in multiple terminals, as needed):
-# docker exec -it pointpillars_test bash
+# docker exec -it pointpillars_test fish
 
 # # Stop container using:
 # docker stop pointpillars_test

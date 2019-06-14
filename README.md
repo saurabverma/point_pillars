@@ -14,7 +14,7 @@ This is not an official nuTonomy codebase, but it can be used to match the publi
 
 ## Getting Started
 
-This is a fork of [SECOND for KITTI object detection](https://github.com/traveller59/second.pytorch) and the relevant
+This is a fork of [Point Pillars](https://github.com/nutonomy/second.pytorch), which is originaly forked from [SECOND for KITTI object detection](https://github.com/traveller59/second.pytorch) and the relevant
 subset of the original README is reproduced here.
 
 ### Code Support
@@ -26,12 +26,21 @@ ONLY supports python 3.6+, pytorch 0.4.1+. Code has only been tested on Ubuntu 1
 #### 1. Clone code
 
 ```bash
-git clone https://github.com/nutonomy/second.pytorch.git
+
+git clone https://github.com/saurabverma/point_pillars.git
 ```
 
 #### 2. Install Python packages
 
-It is recommend to use the Anaconda package manager.
+It is recommend to use the Dockerfile as it will install all the necessary packages in on command.
+
+Run the following command inside the downloaded git repository.
+See file 'Dockerfile' for more details.
+```bash
+docker build --tag="point_pillars:Dockerfile" .
+```
+
+Alternatively, Anaconda package manager may be used.
 
 First, use Anaconda to configure as many packages as possible.
 ```bash
@@ -76,7 +85,7 @@ export NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
 
 #### 4. PYTHONPATH
 
-Add second.pytorch/ to your PYTHONPATH.
+Add point_pillars/ to your PYTHONPATH.
 
 ### Prepare dataset
 
@@ -101,26 +110,26 @@ Download KITTI dataset and create some directories first:
 
 Note: PointPillar's protos use ```export KITTI_DATASET_ROOT=/root/point_pillars/data/kitti_second```.
 Note: PointPillar's protos use ```export MODEL_ROOT=/root/point_pillars/model```.
-Note: Setup the code directory environment ```export PYTHONPATH=/root/point_pillars/src/second.pytorch``` after running ```git clone https://github.com/saurabverma/second.pytorch.git --depth 1``` inside the host PC shared folder equivalent of ```/root/point_pillars/src/```.
+Note: Setup the code directory environment ```export PYTHONPATH=/root/point_pillars/src/point_pillars``` after running ```git clone https://github.com/saurabverma/point_pillars.git --depth 1``` inside the host PC shared folder equivalent of ```/root/point_pillars/src/```.
 
 #### 2. Create kitti infos:
 
 ```bash
-cd ~/point_pillars/src/second.pytorch/second
+cd ~/point_pillars/src/point_pillars/second
 python create_data.py create_kitti_info_file --data_path=$KITTI_DATASET_ROOT
 ```
 
 #### 3. Create reduced point cloud:
 
 ```bash
-cd ~/point_pillars/src/second.pytorch/second
+cd ~/point_pillars/src/point_pillars/second
 python create_data.py create_reduced_point_cloud --data_path=$KITTI_DATASET_ROOT
 ```
 
 #### 4. Create groundtruth-database infos:
 
 ```bash
-cd ~/point_pillars/src/second.pytorch/second
+cd ~/point_pillars/src/point_pillars/second
 python create_data.py create_groundtruth_database --data_path=$KITTI_DATASET_ROOT
 ```
 
@@ -150,7 +159,7 @@ eval_input_reader: {
 ### Train
 
 ```bash
-cd ~/point_pillars/src/second.pytorch/second
+cd ~/point_pillars/src/point_pillars/second
 python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
 ```
 
@@ -165,7 +174,7 @@ python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_1
 
 
 ```bash
-cd ~/point_pillars/src/second.pytorch/second
+cd ~/point_pillars/src/point_pillars/second
 python ./pytorch/train.py evaluate --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
 ```
 
@@ -178,6 +187,6 @@ python ./pytorch/train.py evaluate --config_path=./configs/pointpillars/car/xyre
 
 
 ```bash
-cd ~/point_pillars/src/second.pytorch
+cd ~/point_pillars/src/point_pillars
 python ./predict.py predict --config_path=./second/configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
 ```
