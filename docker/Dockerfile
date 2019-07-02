@@ -1,5 +1,3 @@
-# From https://github.com/ufoym/deepo/blob/master/docker/Dockerfile.pytorch-py36-cu90
-
 # ==================================================================
 # module list
 # ------------------------------------------------------------------
@@ -28,7 +26,11 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         nano \
         less \
         fish \
+        cmake \
         libsparsehash-dev \
+        libopenni-dev \
+        libproj-dev \
+        libpcl-dev \
         && \
 # ==================================================================
 # python and pip
@@ -36,7 +38,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         software-properties-common \
         && \
-    add-apt-repository ppa:deadsnakes/ppa && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python3.6 \
@@ -48,7 +50,6 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     ln -s /usr/bin/python3.6 /usr/local/bin/python3 && \
     ln -s /usr/bin/python3.6 /usr/local/bin/python && \
     $PIP_INSTALL setuptools && \
-    $PIP_INSTALL cmake && \
     $PIP_INSTALL numpy && \
     $PIP_INSTALL scipy && \
     $PIP_INSTALL matplotlib && \
@@ -64,26 +65,22 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     $PIP_INSTALL scikit-image && \
     $PIP_INSTALL numba && \
     $PIP_INSTALL pillow && \
+    $PIP_INSTALL pandas && \
 # ==================================================================
 # config & cleanup
 # ------------------------------------------------------------------
+    ln -s /usr/lib/x86_64-linux-gnu/libvtkCommonCore-6.2.so /usr/lib/libvtkproj4.so && \
+    ln -s /usr/lib/python2.7/dist-packages/vtk/libvtkRenderingPythonTkWidgets.x86_64-linux-gnu.so /usr/lib/x86_64-linux-gnu/libvtkRenderingPythonTkWidgets.so && \
     ldconfig && \
     apt-get clean && \
     apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
-
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/* && \
 # ==================================================================
 # setup
 # ------------------------------------------------------------------
-RUN echo 'force_color_prompt=yes' >> /root/.bashrc && \
-    mkdir /root/point_pillars
-WORKDIR /root/point_pillars
-
-RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz && \
-    tar xzvf boost_1_68_0.tar.gz && \
-    cp -r ./boost_1_68_0/boost /usr/include && \
-    rm -rf ./boost_1_68_0 && \
-    rm -rf ./boost_1_68_0.tar.gz && \
+    echo 'force_color_prompt=yes' >> /root/.bashrc && \
+    mkdir /root/point_pillars && \
+    cd /root/point_pillars && \
     git clone https://github.com/traveller59/SparseConvNet.git --depth 1 && \
     cd ./SparseConvNet && \
     python setup.py install && \
@@ -93,6 +90,8 @@ RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.
 ENV KITTI_DATASET_ROOT=/root/point_pillars/data/kitti_second \
     MODEL_ROOT=/root/point_pillars/model \
     PYTHONPATH=/root/point_pillars/src/point_pillars
+
+WORKDIR /root/point_pillars
 
 # # git repo to be set from outside docker such that user can easily manipulate
 # WORKDIR /root/point_pillars/src/

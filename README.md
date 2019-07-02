@@ -188,5 +188,5 @@ python ./pytorch/train.py evaluate --config_path=./configs/pointpillars/car/xyre
 
 ```bash
 cd ~/point_pillars/src/point_pillars
-python ./predict.py predict --config_path=./second/configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT
+python ./predict.py predict --config_path=./second/configs/pointpillars/car/xyres_16.proto --model_dir=$MODEL_ROOT --bb_save_dir=temp/
 ```

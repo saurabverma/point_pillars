@@ -1,11 +1,5 @@
 '''
-Description: Use this program to predict a single 
-
-TODO:
-[ ] Input to be set as a regular pointcloud
-[ ] Output yet to be decided
-[ ] The config file path input to be set
-[ ] Include ROS support as a service
+Description: Use this program to predict a single
 
 Author: Dr. Saurab VERMA (saurab_verma@i2r.a-star.edu.sg)
 '''
@@ -17,6 +11,8 @@ import pickle
 import shutil
 import time
 from functools import partial
+
+import pandas as pd
 
 # import rospy
 # from visualization_msgs.msg import MarkerArray
@@ -143,6 +139,7 @@ def predict(config_path,
 			ckpt_path=None,
 			ref_detfile=None,
 			pickle_result=True,
+            bb_save_dir=None,
 			pub_bb=None,
             pub_lidar=None):
 	''' Setup network and provide useful output '''
@@ -164,9 +161,13 @@ def predict(config_path,
 		proto_str = f.read()
 		text_format.Merge(proto_str, config)
 
+	# TODO: include this program as a function call in the localization/mapping code as needed
 	# TODO: use whole pointcloud data instead of reduced pointcloud
-	# TODO: store data in respective pcd and bounding box (csv) files
-	# TODO: create a cpp file to read and show (n number of) pcd files with respective bounding boxes
+	# TODO: [Done] store data in respective pcd and bounding box (csv) files
+	# TODO: [Done] create a cpp file to read and show (n number of) pcd files with respective bounding boxes
+	# > [Done] Check if pcl_viewer can open pcd
+	# > [Done] Check if pcl_viewer can be called from a cpp program for vizualization
+	# > [Done] Check if that cpp program can also show a bounding box
 	input_cfg = config.eval_input_reader # Read the config file data into useful structures
 	model_cfg = config.model.second # Read the config file data into useful structures
 	train_cfg = config.train_config # Read the config file data into useful structures
@@ -240,14 +241,14 @@ def predict(config_path,
 	# NETWORK USAGE #
 	#################
 	# Predict a set of 'num_workers'  samples, get info and reformat data as needed
-	temp_count = 0
+	# temp_count = 0
 	for example in iter(eval_dataloader):
 		# pprint.pprint(example, width=1)
 		# for key, value in example.items():
 		# 	print(key)
 		# 	print(np.shape(value))
 		example = example_convert_to_torch(example, float_dtype)
-		print(example['image_idx'][0])
+		print(example['image_idx'])
 		# pprint.pprint(example, width=1)
 		# for key, value in example.items():
 		# 	print(key)
@@ -258,23 +259,42 @@ def predict(config_path,
 		# start_time = time.time()
 		predictions_dicts = net(example)
 
-		# Publish original data
-		if pub_lidar:
-			data=PointCloud2()
-			# TODO: Extract pointclound info from 'example' (use original kitti data file if needed) > publish
-			pub_lidar.publish(data)
+		# # Save copy of data if user requested
+		# if save_pcd:
+		# 	np.fromfile(str(v_path), dtype=np.float32, count=-1).reshape([-1, 4])
 
-		# Publish network output
-		if pub_bb:
-			data = MarkerArray()
-			# TODO: Create a wireframe 3D bounding box and, if possible, a transluscent 3D cuboid as well > publish
-			pub_bb.publish(data)
+		# # Publish original data
+		# if pub_lidar:
+		# 	data=PointCloud2()
+		# 	# FIXME: Extract pointclound info from 'example' (use original kitti data file if needed) > publish
+		# 	pub_lidar.publish(data)
 
-		# print('Network predict time: {}'.format(time.time()-start_time))
+		# # Publish network output
+		# if pub_bb:
+		# 	data = MarkerArray()
+		# 	# FIXME: Create a wireframe 3D bounding box and, if possible, a transluscent 3D cuboid as well > publish
+		# 	pub_bb.publish(data)
+
+		# # print('Network predict time: {}'.format(time.time()-start_time))
 		# pprint.pprint(predictions_dicts[0])
 		# for key, value in predictions_dicts[0].items():
 		# 	print(key)
 		# 	print(np.shape(value))
+
+		if bb_save_dir:
+			save_path = pathlib.Path(bb_save_dir)
+			save_path.mkdir(parents=True, exist_ok=True) # create directory (and its parents) if non-existent
+
+			for pred_dict in predictions_dicts:
+				if pred_dict['box3d_lidar'] is not None:
+					bb_lidar = pred_dict['box3d_lidar'].detach().cpu().numpy()
+				else:
+					bb_lidar = [['temp','temp','temp','temp','temp','temp','temp']]
+				df = pd.DataFrame(bb_lidar)
+				df.columns = ['x', 'y', 'z', 'w', 'l', 'h', 't']
+				filename = save_path.joinpath(str(pred_dict['image_idx']) + '.csv')
+				filename.write_text(df.to_csv(index=False))
+
 
 		# dt_annos += _process_output(
 		# 	predictions_dicts, example['image_shape'], class_names, center_limit_range,
@@ -286,9 +306,9 @@ def predict(config_path,
 		# # # # else:
 		# # # # 	predict_kitti_to_file(net, example, result_path_step, class_names,
 		# # # # 						   center_limit_range, model_cfg.lidar_input)
-		temp_count += 1
-		if temp_count > 5:
-			break
+		# temp_count += 1
+		# if temp_count > 5:
+		# 	break
 		# bar.print_bar() # Update progress
 
 	# sec_per_example = len(eval_dataset) / (time.time() - t)
