@@ -1,0 +1,27 @@
+/root/point_pillars/catkin_ws/src/second.pytorch/second/core/geometry.py:97: NumbaWarning: 
+Compilation is falling back to object mode WITH looplifting enabled because Function "points_in_convex_polygon_3d_jit" failed type inference due to: Invalid use of type(CPUDispatcher(<function surface_equ_3d_jit at 0x7ff9044382f0>)) with parameters (array(float64, 4d, A))
+ * parameterized
+[1] During: resolving callee type: type(CPUDispatcher(<function surface_equ_3d_jit at 0x7ff9044382f0>))
+[2] During: typing of call at /root/point_pillars/catkin_ws/src/second.pytorch/second/core/geometry.py (118)
+
+
+File "core/geometry.py", line 118:
+def points_in_convex_polygon_3d_jit(points,
+    <source elided>
+        num_surfaces = np.full((num_polygons,), 9999999, dtype=np.int64)
+    normal_vec, d = surface_equ_3d_jit(polygon_surfaces[:, :, :3, :])
+    ^
+
+  @numba.jit(nopython=False)
+/root/point_pillars/catkin_ws/src/second.pytorch/second/core/geometry.py:97: NumbaWarning: 
+Compilation is falling back to object mode WITHOUT looplifting enabled because Function "points_in_convex_polygon_3d_jit" failed type inference due to: cannot determine Numba type of <class 'numba.dispatcher.LiftedLoop'>
+
+File "core/geometry.py", line 123:
+def points_in_convex_polygon_3d_jit(points,
+    <source elided>
+    sign = 0.0
+    for i in range(num_points):
+    ^
+
+  @numba.jit(nopython=False)
+

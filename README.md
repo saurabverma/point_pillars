@@ -1,3 +1,11 @@
+### NOTE
+This is a (not-complete-)forked copy of
+[PointPillars]{https://github.com/nutonomy/second.pytorch}, with primary update
+being addition of `pcl_viewer` for examinig the before/after differences in
+pointpillars output into the pointcloud data.
+
+Currently the program is not usable for the reason described in the [error]{ERROR} file.
+
 # PointPillars
 
 Welcome to PointPillars.
@@ -5,7 +13,7 @@ Welcome to PointPillars.
 This repo demonstrates how to reproduce the results from
 [_PointPillars: Fast Encoders for Object Detection from Point Clouds_](https://arxiv.org/abs/1812.05784) (to be published at CVPR 2019) on the
 [KITTI dataset](http://www.cvlibs.net/datasets/kitti/) by making the minimum required changes from the preexisting
-open source codebase [SECOND](https://github.com/traveller59/second.pytorch). 
+open source codebase [SECOND](https://github.com/traveller59/second.pytorch).
 
 This is not an official nuTonomy codebase, but it can be used to match the published PointPillars results.
 
