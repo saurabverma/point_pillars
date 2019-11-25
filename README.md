@@ -1,10 +1,10 @@
 ### NOTE
 This is a (not-complete-)forked copy of
-[PointPillars]{https://github.com/nutonomy/second.pytorch}, with primary update
+[PointPillars](https://github.com/nutonomy/second.pytorch), with primary update
 being addition of `pcl_viewer` for examinig the before/after differences in
 pointpillars output into the pointcloud data.
 
-Currently the program is not usable for the reason described in the [error]{ERROR} file.
+Currently the program is not usable for the reason described in the [error](ERROR) file.
 
 # PointPillars
 
